@@ -29,15 +29,17 @@ public class DefendLikedPlayer<E extends Mob> extends TargetBehavior<E> {
         this.selector = selector;
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, E mob) {
-        LivingEntity likedPlayer = TrustAi.getLikedPlayer(mob).get();
-        this.trustedLastHurt = likedPlayer;
-        this.trustedLastHurtBy = likedPlayer.getLastHurtByMob();
-        int lastHurtByMobTimestamp = likedPlayer.getLastHurtByMobTimestamp();
-        return lastHurtByMobTimestamp != this.timestamp
-                && this.canAttack(mob, this.trustedLastHurtBy, this.getTargetingConditions(mob));
+        LivingEntity likedPlayer = TrustAi.getLikedPlayer(mob).orElse(null);
+        if (likedPlayer != null) {
+            this.trustedLastHurt = likedPlayer;
+            this.trustedLastHurtBy = likedPlayer.getLastHurtByMob();
+            int lastHurtByMobTimestamp = likedPlayer.getLastHurtByMobTimestamp();
+            return lastHurtByMobTimestamp != this.timestamp
+                    && this.canAttack(mob, this.trustedLastHurtBy, this.getTargetingConditions(mob));
+        }
+        return false;
     }
 
     private TargetingConditions getTargetingConditions(E mob) {
